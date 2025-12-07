@@ -17,7 +17,7 @@ const WebSocketClient = (function() {
     const RECONNECT_DELAY = 2000;
 
     // Server URL - change this for production
-    const SERVER_URL = 'ws://localhost:3001';
+    const SERVER_URL = 'ws://magnet-shapes-server.onrender.com:3001';
 
     // Event handlers
     const handlers = {
