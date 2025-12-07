@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnet Shapes - Multiplayer Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ==========================================
+         BACKGROUND DECORATION
+         ========================================== -->
+    <div class="bg-decoration">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <!-- ==========================================
+         MAIN CONTAINER
+         ========================================== -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">
+                <span class="magnet-icon">🧲</span>
+                Magnet Shapes
+            </h1>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- ==========================================
+             LOBBY SCREEN
+             ========================================== -->
+        <section class="screen" id="lobbyScreen">
+            <div class="lobby-card">
+                <h2>Welcome, Player!</h2>
+                
+                <div class="input-group">
+                    <label for="playerName">Your Name</label>
+                    <input type="text" id="playerName" placeholder="Enter your name..." maxlength="20">
+                </div>
+
+                <div class="lobby-options">
+                    <!-- Create New Game -->
+                    <div class="option-card">
+                        <h3>Create New Game</h3>
+                        <p>Start a new session and invite friends</p>
+                        
+                        <div class="shape-selector">
+                            <label>Choose Shape:</label>
+                            <div class="shape-buttons" id="shapeButtons">
+                                <!-- Basic Shapes -->
+                                <button class="shape-btn active" data-shape="circle" title="Circle">
+                                    <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="currentColor"/></svg>
+                                </button>
+                                <button class="shape-btn" data-shape="square" title="Square">
+                                    <svg viewBox="0 0 50 50"><rect x="7" y="7" width="36" height="36" fill="currentColor"/></svg>
+                                </button>
+                                <button class="shape-btn" data-shape="rectangle" title="Rectangle">
+                                    <svg viewBox="0 0 50 50"><rect x="5" y="14" width="40" height="22" fill="currentColor"/></svg>
+                                </button>
+                                <button class="shape-btn" data-shape="triangle" title="Triangle">
+                                    <svg viewBox="0 0 50 50"><polygon points="25,5 5,45 45,45" fill="currentColor"/></svg>
+                                </button>
+                                <button class="shape-btn" data-shape="diamond" title="Diamond">
+                                    <svg viewBox="0 0 50 50"><polygon points="25,3 47,25 25,47 3,25" fill="currentColor"/></svg>
+                                </button>
+                                <!-- Special Shapes -->
+                                <button class="shape-btn" data-shape="star" title="Star">
+                                    <svg viewBox="0 0 50 50"><polygon points="25,2 31,18 48,18 34,29 40,46 25,36 10,46 16,29 2,18 19,18" fill="currentColor"/></svg>
+                                </button>
+                                <button class="shape-btn" data-shape="heart" title="Heart">
+                                    <svg viewBox="0 0 50 50"><path d="M25,45 C15,35 5,28 5,18 C5,10 12,5 20,5 C23,5 25,7 25,7 C25,7 27,5 30,5 C38,5 45,10 45,18 C45,28 35,35 25,45 Z" fill="currentColor"/></svg>
+                                </button>
+                                <!-- Fun Shapes -->
+                                <button class="shape-btn" data-shape="cat" title="Cat">
+                                    <svg viewBox="0 0 50 50">
+                                        <ellipse cx="25" cy="32" rx="12" ry="8" fill="currentColor"/>
+                                        <circle cx="25" cy="18" r="8" fill="currentColor"/>
+                                        <polygon points="18,12 15,4 21,9" fill="currentColor"/>
+                                        <polygon points="32,12 35,4 29,9" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                                <button class="shape-btn" data-shape="shark" title="Shark">
+                                    <svg viewBox="0 0 50 50">
+                                        <polygon points="5,25 15,18 35,15 40,8 42,15 48,20 45,25 48,30 42,35 35,35 15,32" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                                <button class="shape-btn" data-shape="tree" title="Tree">
+                                    <svg viewBox="0 0 50 50">
+                                        <rect x="21" y="35" width="8" height="12" fill="currentColor"/>
+                                        <polygon points="25,5 10,25 40,25" fill="currentColor"/>
+                                        <polygon points="25,12 12,30 38,30" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" id="createGameBtn">
+                            <span>Create Game</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </div>
+
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <!-- Join Existing Game -->
+                    <div class="option-card">
+                        <h3>Join Game</h3>
+                        <p>Enter a session code to join</p>
+                        
+                        <div class="input-group">
+                            <label for="sessionCode">Session Code</label>
+                            <input type="text" id="sessionCode" placeholder="Enter code..." maxlength="8" style="text-transform: uppercase;">
+                        </div>
+
+                        <button class="btn btn-secondary" id="joinGameBtn">
+                            <span>Join Game</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             WAITING ROOM SCREEN
+             ========================================== -->
+        <section class="screen hidden" id="waitingScreen">
+            <div class="waiting-card">
+                <h2>Waiting for Players</h2>
+                
+                <div class="session-info">
+                    <span class="label">Session Code:</span>
+                    <span class="session-code" id="displaySessionCode">XXXXXXXX</span>
+                    <button class="copy-btn" id="copyCodeBtn" title="Copy code">📋</button>
+                </div>
+
+                <div class="shape-preview">
+                    <span class="label">Shape:</span>
+                    <span class="shape-name" id="displayShapeName">Circle</span>
+                </div>
+
+                <div class="players-list" id="waitingPlayersList">
+                    <!-- Players will be dynamically added here -->
+                </div>
+
+                <p class="waiting-message">
+                    <span class="pulse-dot"></span>
+                    Waiting for at least 2 players to start...
+                </p>
+
+                <button class="btn btn-danger" id="leaveWaitingBtn">Leave</button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             GAME SCREEN
+             ========================================== -->
+        <section class="screen hidden" id="gameScreen">
+            <div class="game-layout">
+                <!-- Row 1: Game Info Bar -->
+                <div class="game-info-bar">
+                    <div class="session-badge">
+                        <span class="label">Session:</span>
+                        <span id="gameSessionCode">XXXXXXXX</span>
+                    </div>
+                    
+                    <div class="turn-indicator" id="turnIndicator">
+                        <span class="turn-label">Current Turn:</span>
+                        <span class="turn-player" id="currentTurnPlayer">Waiting...</span>
+                    </div>
+
+                    <button class="btn btn-small btn-danger" id="leaveGameBtn">Leave Game</button>
+                </div>
+
+                <!-- Row 2: Players Panel -->
+                <div class="players-row">
+                    <div class="players-list horizontal" id="gamePlayersList">
+                        <!-- Players will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Row 3: Game Canvas -->
+                <div class="canvas-row">
+                    <div class="canvas-container">
+                        <canvas id="gameCanvas" width="800" height="600"></canvas>
+                        <canvas id="maskCanvas" width="800" height="600" style="display: none;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Game Messages -->
+                <div class="game-messages" id="gameMessages"></div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             GAME OVER MODAL
+             ========================================== -->
+        <div class="modal hidden" id="gameOverModal">
+            <div class="modal-content">
+                <div class="winner-celebration">
+                    <span class="trophy">🏆</span>
+                    <h2>Game Over!</h2>
+                    <p class="winner-name" id="winnerName">Player Name Wins!</p>
+                </div>
+                <button class="btn btn-primary" id="backToLobbyBtn">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT FILES
+         ========================================== -->
+    <script src="js/shapes.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
