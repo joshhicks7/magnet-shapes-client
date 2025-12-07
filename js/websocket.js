@@ -17,7 +17,8 @@ const WebSocketClient = (function() {
     const RECONNECT_DELAY = 2000;
 
     // Server URL - change this for production
-    const SERVER_URL = 'wss://magnet-shapes-server.onrender.com:3001';
+    // Note: Render.com proxies through port 443, so no port needed
+    const SERVER_URL = 'wss://magnet-shapes-server.onrender.com';
 
     // Event handlers
     const handlers = {
