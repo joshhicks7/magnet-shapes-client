@@ -205,6 +205,15 @@ const WebSocketClient = (function() {
         });
     }
 
+    /**
+     * Start the game (host only)
+     */
+    function startGame() {
+        return send({
+            type: 'START_GAME',
+        });
+    }
+
     // ==========================================
     // EVENT HANDLER REGISTRATION
     // ==========================================
@@ -242,6 +251,7 @@ const WebSocketClient = (function() {
         joinSession,
         placeMagnet,
         leaveSession,
+        startGame,
         isConnected: () => isConnected,
     };
 })();

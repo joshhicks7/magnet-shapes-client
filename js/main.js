@@ -30,7 +30,10 @@
         displaySessionCode: document.getElementById('displaySessionCode'),
         displayShapeName: document.getElementById('displayShapeName'),
         copyCodeBtn: document.getElementById('copyCodeBtn'),
+        copyLinkBtn: document.getElementById('copyLinkBtn'),
         waitingPlayersList: document.getElementById('waitingPlayersList'),
+        waitingMessage: document.getElementById('waitingMessage'),
+        startGameBtn: document.getElementById('startGameBtn'),
         leaveWaitingBtn: document.getElementById('leaveWaitingBtn'),
         
         // Game elements
@@ -46,10 +49,31 @@
     };
 
     // ==========================================
+    // RANDOM NAME GENERATOR
+    // ==========================================
+    const ADJECTIVES = [
+        'Swift', 'Brave', 'Clever', 'Mighty', 'Silent', 'Golden', 'Shadow', 'Storm',
+        'Crystal', 'Thunder', 'Cosmic', 'Wild', 'Mystic', 'Frozen', 'Blazing', 'Lucky'
+    ];
+    const NOUNS = [
+        'Fox', 'Wolf', 'Eagle', 'Tiger', 'Dragon', 'Phoenix', 'Falcon', 'Bear',
+        'Shark', 'Panther', 'Hawk', 'Lion', 'Viper', 'Raven', 'Lynx', 'Otter'
+    ];
+
+    function generateRandomName() {
+        const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+        const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+        const num = Math.floor(Math.random() * 100);
+        return `${adj}${noun}${num}`;
+    }
+
+    // ==========================================
     // STATE
     // ==========================================
     let selectedShape = 'circle';
     let currentSessionId = null;
+    let isHost = false;
+    let pendingJoinCode = null; // For auto-joining from URL
 
     // ==========================================
     // INITIALIZATION
@@ -59,8 +83,31 @@
         Game.init(elements.gameCanvas, elements.maskCanvas);
         setupEventListeners();
         setupWebSocketHandlers();
+        
+        // Check URL for join code
+        checkUrlForJoinCode();
+        
         WebSocketClient.connect();
         console.log('🧲 Magnet Shapes initialized');
+    }
+
+    /**
+     * Check URL for join code parameter and auto-fill
+     */
+    function checkUrlForJoinCode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const joinCode = urlParams.get('join');
+        
+        if (joinCode) {
+            elements.sessionCodeInput.value = joinCode.toUpperCase();
+            // Generate a random name for link joiners
+            elements.playerNameInput.value = generateRandomName();
+            pendingJoinCode = joinCode.toUpperCase();
+            
+            // Clean up URL without refreshing
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
     }
 
     function setupEventListeners() {
@@ -77,6 +124,8 @@
         elements.createGameBtn.addEventListener('click', handleCreateGame);
         elements.joinGameBtn.addEventListener('click', handleJoinGame);
         elements.copyCodeBtn.addEventListener('click', handleCopyCode);
+        elements.copyLinkBtn.addEventListener('click', handleCopyLink);
+        elements.startGameBtn.addEventListener('click', handleStartGame);
         elements.leaveWaitingBtn.addEventListener('click', handleLeaveSession);
         elements.leaveGameBtn.addEventListener('click', handleLeaveSession);
         elements.backToLobbyBtn.addEventListener('click', handleBackToLobby);
@@ -166,6 +215,7 @@
 
     function handleSessionCreated(message) {
         currentSessionId = message.sessionId;
+        isHost = true; // Creator is the host
         
         const myPlayer = message.gameState.players[0];
         if (myPlayer) {
@@ -176,7 +226,7 @@
 
         elements.displaySessionCode.textContent = message.sessionId;
         elements.displayShapeName.textContent = capitalizeFirst(message.gameState.shapeType);
-        updateWaitingPlayersList(message.gameState.players);
+        updateWaitingRoom(message.gameState);
         showScreen('waiting');
 
         Game.showMessage(`Session created: ${message.sessionId}`, 'success');
@@ -188,16 +238,18 @@
         const myPlayer = message.gameState.players[message.gameState.players.length - 1];
         if (myPlayer) {
             Game.setMyPlayerId(myPlayer.id);
+            // Check if we're the host
+            isHost = message.gameState.hostPlayerId === myPlayer.id;
         }
 
         Game.updateState(message.gameState);
 
         if (message.gameState.status === 'playing') {
-            startGame(message.gameState);
+            startGameScreen(message.gameState);
         } else {
             elements.displaySessionCode.textContent = message.gameState.sessionId;
             elements.displayShapeName.textContent = capitalizeFirst(message.gameState.shapeType);
-            updateWaitingPlayersList(message.gameState.players);
+            updateWaitingRoom(message.gameState);
             showScreen('waiting');
         }
 
@@ -206,24 +258,24 @@
 
     function handlePlayerJoined(message) {
         Game.updateState(message.gameState);
-        updateWaitingPlayersList(message.gameState.players);
+        updateWaitingRoom(message.gameState);
         Game.showMessage(`${message.player.name} joined the game`, 'info');
 
         if (message.gameState.status === 'playing') {
-            startGame(message.gameState);
+            startGameScreen(message.gameState);
         }
     }
 
     function handlePlayerLeft(message) {
         Game.updateState(message.gameState);
-        updateWaitingPlayersList(message.gameState.players);
+        updateWaitingRoom(message.gameState);
         
         const leftPlayer = message.gameState.players.find(p => p.id === message.playerId);
         Game.showMessage(`${leftPlayer?.name || 'A player'} left the game`, 'warning');
     }
 
     function handleGameStarted(message) {
-        startGame(message.gameState);
+        startGameScreen(message.gameState);
     }
 
     /**
@@ -368,6 +420,21 @@
         });
     }
 
+    function handleCopyLink() {
+        const code = elements.displaySessionCode.textContent;
+        const joinUrl = `${window.location.origin}${window.location.pathname}?join=${code}`;
+        navigator.clipboard.writeText(joinUrl).then(() => {
+            elements.copyLinkBtn.textContent = '✓';
+            setTimeout(() => {
+                elements.copyLinkBtn.textContent = '🔗';
+            }, 2000);
+        });
+    }
+
+    function handleStartGame() {
+        WebSocketClient.startGame();
+    }
+
     function handleLeaveSession() {
         // Clear session ID first to prevent any incoming messages from triggering UI updates
         currentSessionId = null;
@@ -406,7 +473,7 @@
         }
     }
 
-    function startGame(gameState) {
+    function startGameScreen(gameState) {
         Shapes.generateMask(gameState.shapeType);
         elements.gameSessionCode.textContent = gameState.sessionId;
         showScreen('game');
@@ -416,10 +483,48 @@
 
     function resetToLobby() {
         currentSessionId = null;
+        isHost = false;
         Game.reset();
         elements.sessionCodeInput.value = '';
         elements.gameOverModal.classList.add('hidden');
         showScreen('lobby');
+    }
+
+    /**
+     * Update waiting room UI based on game state
+     */
+    function updateWaitingRoom(gameState) {
+        updateWaitingPlayersList(gameState.players);
+        
+        const playerCount = gameState.players.length;
+        const canStart = playerCount >= 2;
+        
+        // Update the waiting message
+        if (isHost) {
+            if (canStart) {
+                elements.waitingMessage.innerHTML = `
+                    <span class="pulse-dot"></span>
+                    ${playerCount} player${playerCount > 1 ? 's' : ''} ready - You can start the game!
+                `;
+            } else {
+                elements.waitingMessage.innerHTML = `
+                    <span class="pulse-dot"></span>
+                    Waiting for at least 2 players to start...
+                `;
+            }
+            // Show/hide start button for host
+            if (canStart) {
+                elements.startGameBtn.classList.remove('hidden');
+            } else {
+                elements.startGameBtn.classList.add('hidden');
+            }
+        } else {
+            elements.waitingMessage.innerHTML = `
+                <span class="pulse-dot"></span>
+                ${playerCount} player${playerCount > 1 ? 's' : ''} - Waiting for host to start...
+            `;
+            elements.startGameBtn.classList.add('hidden');
+        }
     }
 
     // ==========================================

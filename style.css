@@ -551,6 +551,21 @@ input[type="text"]::placeholder {
     animation: pulse 1.5s infinite;
 }
 
+.waiting-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.waiting-actions .btn {
+    min-width: 120px;
+}
+
+.hidden {
+    display: none !important;
+}
+
 /* ==========================================
    PLAYERS LIST
    ========================================== */

@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
     <!-- ==========================================
@@ -144,6 +148,7 @@
                     <span class="label">Session Code:</span>
                     <span class="session-code" id="displaySessionCode">XXXXXXXX</span>
                     <button class="copy-btn" id="copyCodeBtn" title="Copy code">📋</button>
+                    <button class="copy-btn" id="copyLinkBtn" title="Copy invite link">🔗</button>
                 </div>
 
                 <div class="shape-preview">
@@ -155,12 +160,18 @@
                     <!-- Players will be dynamically added here -->
                 </div>
 
-                <p class="waiting-message">
+                <p class="waiting-message" id="waitingMessage">
                     <span class="pulse-dot"></span>
                     Waiting for at least 2 players to start...
                 </p>
 
-                <button class="btn btn-danger" id="leaveWaitingBtn">Leave</button>
+                <div class="waiting-actions">
+                    <button class="btn btn-primary hidden" id="startGameBtn">
+                        <span>Start Game</span>
+                        <span class="btn-icon">🎮</span>
+                    </button>
+                    <button class="btn btn-danger" id="leaveWaitingBtn">Leave</button>
+                </div>
             </div>
         </section>
 
